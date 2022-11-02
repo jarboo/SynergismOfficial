@@ -314,7 +314,9 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
         singFastForward: new SingularityUpgrade(singularityData['singFastForward']),
         singFastForward2: new SingularityUpgrade(singularityData['singFastForward2']),
         singAscensionSpeed: new SingularityUpgrade(singularityData['singAscensionSpeed']),
-        singAscensionSpeed2: new SingularityUpgrade(singularityData['singAscensionSpeed2'])
+        singAscensionSpeed2: new SingularityUpgrade(singularityData['singAscensionSpeed2']),
+        oneMind: new SingularityUpgrade(singularityData['oneMind']),
+        wowPass4: new SingularityUpgrade(singularityData['wowPass4'])
     }
 
     player.octeractUpgrades = {
@@ -485,6 +487,7 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
             seasonPassLost: 0,
             challenge15Auto: 0,
             extraWarp: 0,
+            autoWarp: 0,
             improveQuarkHept: 0,
             improveQuarkHept2: 0,
             improveQuarkHept3: 0,
@@ -492,7 +495,12 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
             shopImprovedDaily: 0,
             shopImprovedDaily2: 0,
             shopImprovedDaily3: 0,
-            shopImprovedDaily4: 0
+            shopImprovedDaily4: 0,
+            offeringEX3: 0,
+            obtainiumEX3: 0,
+            improveQuarkHept5: 0,
+            seasonPassInfinity: 0,
+            chronometerInfinity: 0
         }
 
         player.worlds.add(150 * shop.offeringTimerLevel + 25/2 * (shop.offeringTimerLevel - 1) * shop.offeringTimerLevel, false);
@@ -733,6 +741,10 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
 
     if (data.hepteractAutoCraftPercentage === undefined) {
         player.hepteractAutoCraftPercentage = 50;
+    }
+
+    if (data.autoWarpCheck === undefined || player.shopUpgrades.autoWarp === 0) {
+        player.autoWarpCheck = false;
     }
 
     if (data.loadedV297Hotfix1 === undefined) {

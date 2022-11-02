@@ -941,6 +941,32 @@ export const singularityData: Record<keyof Player['singularityUpgrades'], ISingu
                 desc: `You do ${n > 0 ? '' : 'NOT'} own the Ultimate Pen. ${n > 0 ? ' However, the pen just ran out of ink. How will you get more?' : ''}`
             }
         }
+    },
+    oneMind: {
+        name: 'ONE MIND',
+        description: 'A note, you found on the ground: seems like an advertisement for a cult. "Lock your ascension speed to 10x, and multiply all cubes based on the difference." Hmm...',
+        maxLevel: 1,
+        costPerLevel: 1.66e13,
+        minimumSingularity: 166,
+        effect: (n : number) => {
+            return {
+                bonus: n > 0,
+                desc: `You have ${n > 0 ? '' : 'NOT'} joined the cult!`
+            }
+        }
+    },
+    wowPass4: {
+        name: 'QUQUQUQUAAKCKCKKCKKCKK',
+        description: 'Deals that\'ll cost you a beak and a wing!',
+        maxLevel: 1,
+        costPerLevel: 66666666666,
+        minimumSingularity: 150,
+        effect: (n : number) => {
+            return {
+                bonus: n > 0,
+                desc: `You have ${n > 0 ? '' : 'NOT'} quacked your last QUARK`
+            }
+        }
     }
 }
 
@@ -1271,8 +1297,15 @@ export const singularityPerks: SingularityPerk[] = [
     {
         name: 'PL-AT Σ',
         levels: [125, 200],
-        description: () => {
-            return 'Code \'add\' refills 0.1% faster per level per singularity (MAX: 50% faster)'
+        description: (n: number, levels: number[]) => {
+            let counter = 0
+            for (const singCount of levels) {
+                if (n >= singCount) {
+                    counter += 0.1
+                }
+            }
+
+            return `Code 'add' refills ${counter}% faster per level per singularity (MAX: 50% faster)`
         }
     },
     {
@@ -1373,15 +1406,21 @@ const getAvailablePerksDescription = (singularityCount: number): string => {
 }
 
 function formatPerkDescription(perkData: ISingularityPerkDisplayInfo, singularityCount: number): string {
-    let singTolerance = 0
-    singTolerance += +player.singularityUpgrades.singFastForward.getEffect().bonus
-    singTolerance += +player.singularityUpgrades.singFastForward2.getEffect().bonus
-    singTolerance += +player.octeractUpgrades.octeractFastForward.getEffect().bonus
-
+    const singTolerance = getFastForwardTotalMultiplier();
     const isNew = (singularityCount - perkData.lastUpgraded <= singTolerance);
     const levelInfo = perkData.currentLevel > 1 ? ' - Level '+ perkData.currentLevel : '';
     //const acquiredUpgraded = ' / Acq ' + perkData.acquired + ' / Upg ' + perkData.lastUpgraded;
     return `<span${isNew?' class="newPerk"':''} title="${perkData.description}">${perkData.name}${levelInfo}</span>`;
+}
+
+// Indicates the number of extra Singularity count gained on Singularity reset
+export const getFastForwardTotalMultiplier = (): number => {
+    let fastForward = 0;
+    fastForward += +player.singularityUpgrades.singFastForward.getEffect().bonus
+    fastForward += +player.singularityUpgrades.singFastForward2.getEffect().bonus
+    fastForward += +player.octeractUpgrades.octeractFastForward.getEffect().bonus
+
+    return (player.singularityCount < 200) ? fastForward : 0;
 }
 
 export const getGoldenQuarkCost = (): {
@@ -1480,6 +1519,10 @@ export const calculateEffectiveSingularities = (singularityCount: number = playe
         effectiveSingularities *= 3
         effectiveSingularities *= Math.pow(1.04, singularityCount - 150)
     }
+    if (singularityCount > 200) {
+        effectiveSingularities *= 12
+        effectiveSingularities *= Math.pow(1.3, singularityCount - 200)
+    }
     if (singularityCount === 250) {
         effectiveSingularities *= 100
     }
@@ -1487,7 +1530,7 @@ export const calculateEffectiveSingularities = (singularityCount: number = playe
     return effectiveSingularities
 }
 export const calculateNextSpike = (singularityCount: number = player.singularityCount): number => {
-    const singularityPenaltyThreshold = [11, 26, 37, 51, 101, 151, 250];
+    const singularityPenaltyThreshold = [11, 26, 37, 51, 101, 151, 201, 250];
     for (const sing of singularityPenaltyThreshold) {
         if (sing > singularityCount) {
             return sing;
